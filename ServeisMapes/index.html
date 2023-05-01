@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="cssFile.csss">
+    <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+    <title>Document</title>
+</head>
+<body>
+   
+<title>OpenLayers Simplest Example</title>
+<div>
+    <button onclick="buscar()">buscar</button>
+    <input type="text" id="nombre" placeholder="introduce el nombre">
+    <input type="text" id="lat" placeholder="introduce la latitud">
+    <input type="text" id="lon" placeholder="introduce la longitud">
+</div>
+<div id="demoMap" style="height:1000px">
+ 
+</div>
+
+<script>
+//coordenadas
+function buscar() {
+    let nombre = document.getElementById("nombre").value;
+    let latitud = document.getElementById("lat").value;
+    let longitud = document.getElementById("lon").value;
+
+    map = new OpenLayers.Map("demoMap");
+    map.addLayer(new OpenLayers.Layer.OSM());
+    map.zoomToMaxExtent();
+
+    var lonLat = new OpenLayers.LonLat(longitud, latitud).transform(
+        new OpenLayers.Projection("EPSG:4326"),
+        map.getProjectionObject()
+    );
+    map.setCenter(lonLat, 15);
+
+//marcador
+    var marca = new OpenLayers.Layer.Markers("Markers");
+    map.addLayer(marca);
+
+    var marker = new OpenLayers.Marker(lonLat);
+    marca.addMarker(marker);
+//console.log(nombre);
+//evento en el marcador
+    var pop = new OpenLayers.Popup("popup", lonLat, null, "<div id='estiloDivPopUp'>" + nombre + "</div>", true);
+    map.addPopup(pop);
+    pop.hide();
+
+    marker.events.register('mousedown', marker, function(evt) {
+        OpenLayers.Event.stop(evt); 
+        var position = marker.lonlat.clone().transform(map.getProjectionObject(), new OpenLayers.Projection("EPSG:4326"));
+        pop.lonlat = position;
+      
+        pop.show();
+    });   
+
+    var popupCloser = document.getElementById('popup-closer');
+    popupCloser.onclick = function() {
+            pop.hide();
+            return false;
+    };
+}
+</script>
+</body>
+</html>
